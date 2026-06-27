@@ -12,8 +12,8 @@ export interface IProduct {
   description: string;
   price: number;
   comments?: IComment[];
-  images: IImage[];
-  thumbnail: IImage | null;
+  images?: IImage[];
+  thumbnail?: IImage | null;
 }
 
 export interface IImage {

@@ -10,6 +10,10 @@ import { updateThumbnail } from "../models/products.model";
 import { updateProductPartial } from "../models/products.model";
 import { IProductUpdatePayload } from "../types";
 import { throwServerError } from "./helper";
+import {
+  getSimilarProductsDirect,
+  deleteSimilarProductLinksDirect,
+} from "../models/similar.model";
 
 export const productsRouter = Router();
 
@@ -41,22 +45,51 @@ productsRouter.get(
   },
 );
 
-//метод для страницы с описанием и редактированием товара
+//-------------метод для страницы с описанием и редактированием товара, а также связанными товарами
+//-------------из таблицы product_similarities
 productsRouter.get(
   "/:id",
   async (req: Request<{ id: string }>, res: Response) => {
     try {
       const product = await getProduct(req.params.id);
-
-      if (product) {
-        res.render("product/product", {
-          item: product,
-        });
-      } else {
-        res.render("product/empty-product", {
-          id: req.params.id,
-        });
+      if (!product) {
+        return res.render("product/empty-product", { id: req.params.id });
       }
+
+      // Получаем похожие товары через новую модель
+      const similarProducts = await getSimilarProductsDirect(req.params.id);
+
+      res.render("product/product", {
+        item: product,
+        similarProducts,
+      });
+    } catch (e) {
+      throwServerError(res, e);
+    }
+  },
+);
+
+//роут (удаление связей похожих товаров)
+productsRouter.post(
+  "/:id/similar/remove",
+  async (
+    req: Request<{ id: string }, {}, { ids: string[] }>,
+    res: Response,
+  ) => {
+    try {
+      const productId = req.params.id;
+      const idsToRemove = req.body.ids || [];
+
+      if (!idsToRemove || idsToRemove.length === 0) {
+        // Если ничего не выбрано — просто редиректим или возвращаем успех
+        const adminPath = process.env.ADMIN_PATH || "/admin";
+        return res.redirect(`${adminPath}/${productId}`);
+      }
+
+      await deleteSimilarProductLinksDirect(productId, idsToRemove);
+
+      // ✅ Редирект обратно на страницу этого товара
+      res.redirect(`/admin/${productId}`);
     } catch (e) {
       throwServerError(res, e);
     }
