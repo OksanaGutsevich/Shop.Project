@@ -1,0 +1,30 @@
+# Зависимости
+node_modules/
+
+# Сборка и бандлы
+dist/
+build/
+
+# Кэш
+.npm/
+.yarn/cache/
+.yarn/*
+!.yarn/patches/
+!.yarn/plugins/
+!.yarn/releases/
+!.yarn/sdks/
+!.yarn/versions/
+
+# Логи
+logs/
+*.log
+
+# Env файлы
+.env
+.env.local
+.env.*.local
+
+# Инструменты
+coverage/          # Результаты тестов
+.vscode/
+.idea/

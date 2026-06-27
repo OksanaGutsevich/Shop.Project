@@ -1,0 +1,139 @@
+body {
+  background-color: #f1f1f1;
+  font-family: "Jost", "Inter", sans-serif;
+}
+
+.container {
+  padding: 20px 40px;
+}
+.header {
+  padding: 20px 40px;
+  border-bottom: 1px solid #00b1ffff;
+  height: 150px;
+}
+
+.logo {
+  width: 100px;
+  height: 100px;
+  background: url("../img/logo.png");
+  background-size: 100px 100px;
+}
+
+.products-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-row-gap: 40px;
+}
+
+.product-item {
+  display: flex;
+}
+
+.product-item .image {
+  width: 100px;
+  height: 100px;
+  margin-right: 20px;
+  border: 1px solid #d0d0d0;
+}
+
+.product-item .image img {
+  max-width: 100%;
+}
+
+.product-item .title {
+  display: block;
+  color: inherit;
+  font-size: 20px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.product-item .label {
+  font-weight: 600;
+}
+
+.products-search-form {
+  margin-bottom: 40px;
+}
+
+.products-search {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 10px;
+}
+
+.products-search label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+}
+
+.product-comment {
+  padding: 20px 40px;
+  border-bottom: 1px solid #00b1ffff;
+  position: relative;
+}
+
+.remove-mark {
+  position: absolute;
+  right: 10px;
+}
+
+.product-edit-images {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  justify-items: center;
+  padding: 10px 15px;
+  gap: 20px;
+  white-space: normal; /* разрешает перенос текста */
+  word-wrap: break-word; /* переносит длинные слова, если не влезают */
+  max-width: 100%; /* не вылезает за пределы карточки */
+}
+
+.product-image {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-image .image-wrapper {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 10px;
+}
+
+.product-image .control {
+  text-align: center;
+}
+
+.product-image .remove-mark {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.product-edit-footer {
+  margin-top: 60px;
+}
+
+.comment-body-input {
+  width: 700px;
+  height: 100px;
+}
+
+.wrapper_logout {
+  margin-top: 20px;
+}
+
+.logout,
+.login_button {
+  text-decoration: none;
+  color: black;
+  border: 1px solid #00b1ffff;
+  padding: 5px;
+  background-color: white;
+}

@@ -1,0 +1,32 @@
+<div class="product-comment">
+  <div>
+    <strong><%= comment.name %></strong>
+    <div><%= comment.email %></div>
+
+    <!-- Скрытое поле с ID комментария -->
+    <input
+      type="hidden"
+      name="editedComments[<%= index %>][id]"
+      value="<%= comment.id %>"
+    />
+
+    <!-- Текстовое поле для редактирования текста -->
+    <textarea
+      name="editedComments[<%= index %>][text]"
+      rows="2"
+      class="comment-body-input"
+    >
+<%= comment.body %></textarea
+    >
+  </div>
+
+  <div class="remove-mark">
+    <label for="<%= comment.id %>">Mark to remove</label>
+    <input
+      type="checkbox"
+      id="<%= comment.id %>"
+      value="<%= comment.id %>"
+      name="commentsToRemove"
+    />
+  </div>
+</div>
