@@ -1,15 +1,31 @@
+<% 
+  // Если в базе есть URL — берем его. Если нет, пусто или там битая ссылка — берем локальную заглушку.
+  const imgSrc = image.url && image.url.trim() !== '' ? image.url : '/img/default.jpg';
+%>
+
 <div class="product-image">
-    <div class="image-wrapper">
-        <img src="<%= image.url %>" alt="Product image">
-    </div>
+  <div class="image-wrapper">
+    <img 
+      src="<%= imgSrc %>" 
+      alt="Product image"
+      onerror="this.src='/img/default.jpg'; this.onerror=null;"
+      style="max-width: 100%; height: auto; display: block; object-fit: cover;"
+    />
+  </div>
 
-    <div class="remove-mark-image">
-        <label for="<%= image.id %>">Mark to remove</label>
-        <input type="checkbox" id="<%= image.id %>" value="<%= image.id %>" name="imagesToRemove">
-    </div>
+  <div class="remove-mark-image">
+    <label for="<%= image.id %>">Mark to remove</label>
+    <input type="checkbox" id="<%= image.id %>" value="<%= image.id %>" name="imagesToRemove">
+  </div>
 
-    <div class="control">
-        <input type="radio" id="<%= `${image.id}_radio` %>" value="<%= image.id %>" name="mainImage" <%=image.main ? "checked" : "" %>>
-        <label for="<%= `${image.id}_radio` %>">main</label>
-    </div>
+  <div class="control">
+    <input 
+      type="radio" 
+      id="<%= `${image.id}_radio` %>" 
+      value="<%= image.id %>" 
+      name="mainImage" 
+      <%= image.main ? "checked" : "" %>
+    >
+    <label for="<%= `${image.id}_radio` %>">main</label>
+  </div>
 </div>

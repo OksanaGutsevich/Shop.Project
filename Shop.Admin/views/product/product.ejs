@@ -1,4 +1,7 @@
-<h1><%= item.title %></h1>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+  <h1><%= item.title %></h1>
+  <a href="/admin" class="btn-back" style="text-decoration: none; padding: 8px 16px; background: #f0f0f0; color: #333; border-radius: 4px; font-size: 0.95rem;">← Back to all products</a>
+</div>
 
 <form action="<%= `save/${item.id}` %>" method="post" class="product-edit-form">
   <div class="product-edit-fields">
@@ -56,8 +59,13 @@
         <% } %>
 
         <div class="product-edit-footer">
-        <button type="submit">Save changes</button>
-        <a href="<%= `remove-product/${item.id}` %>">Delete product</a>
+        <button type="submit" style="background: #27ae60; color: white; border: none; padding: 10px 20px; cursor: pointer; align-self: flex-start; border-radius: 4px;">Save changes</button>
+        <a 
+  href="<%= `remove-product/${item.id}` %>" 
+  style="background: #d9534f; color: white; border: none; padding: 8px 16px; cursor: pointer; text-decoration: none; border-radius: 4px;"
+>
+  Delete product
+</a>
     </div> 
        
 
@@ -68,42 +76,47 @@
   <section style="margin-top: 3rem; padding: 1rem; border-top: 2px solid #00b1ffff;">
     <h2>Similar Products</h2>
 
-    <!-- Путь исправлен на /admin -->
-    <form
-      action="/admin/<%= item.id %>/similar/remove"
-      method="POST"
-      onsubmit="return confirm('Вы уверены, что хотите удалить выбранные связи?');"
-      style="display: flex; flex-direction: column; gap: 1rem;"
-    >
+    <!-- Форма остается для удаления -->
+<form
+  id="form-remove-similar"                                                    
+  action="/admin/<%= item.id %>/similar/remove"
+  method="POST"                                                         
+  style="display: flex; flex-direction: column; gap: 1rem;"
+>
       <div class="similar-products-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
         <% similarProducts.forEach(function(prod) { %>
-          <div class="product-similar-item" style="border: 1px solid #ddd; padding: 0.8rem; border-radius: 4px;">
-            <div style="margin-bottom: 0.5rem;">
-              <strong><%= prod.title %></strong>
-              <span style="float: right; color: #555; font-size: 0.9em;">$<%= prod.price %></span>
-            </div>
-            <% if (prod.description) { %>
-              <div style="font-size: 0.85em; color: #666; margin-bottom: 0.8rem;">
-                <%= prod.description %>
+          <!-- Ссылка-обертка. target="_self" (по умолчанию) -->
+          <a href="/admin/<%= prod.id %>" class="product-link-wrapper" style="text-decoration: none; color: inherit;">
+            <div class="product-similar-item" style="border: 1px solid #ddd; padding: 0.8rem; border-radius: 4px; cursor: pointer; transition: transform 0.2s; background: #fff;">
+              <div style="margin-bottom: 0.5rem;">
+                <strong><%= prod.title %></strong>
+                <span style="float: right; color: #555; font-size: 0.9em;">$<%= prod.price %></span>
               </div>
-            <% } %>
+              <% if (prod.description) { %>
+                <div style="font-size: 0.85em; color: #666; margin-bottom: 0.8rem; line-height: 1.4;">
+                  <%= prod.description.substring(0, 60) %><%= prod.description.length > 60 ? '...' : '' %>
+                </div>
+              <% } %>
 
-            <!-- Чекбокс -->
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <label for="chk-<%= prod.id %>" style="cursor: pointer; margin: 0;">Mark to remove</label>
-              <input
-                type="checkbox"
-                id="chk-<%= prod.id %>"
-                value="<%= prod.id %>"
-                name="ids[]"
-                style="cursor: pointer;"
-              />
+              <!-- Чекбокс внутри ссылки. 
+                   Мы используем JS ниже, чтобы клик по чекбоксу не открывал ссылку -->
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="chk-<%= prod.id %>" style="cursor: pointer; margin: 0; user-select: none;">Mark to remove</label>
+                <input
+                  type="checkbox"
+                  id="chk-<%= prod.id %>"
+                  value="<%= prod.id %>"
+                  name="ids[]"
+                  style="cursor: pointer;"
+                  onclick="event.stopPropagation();" 
+                />
+              </div>
             </div>
-          </div>
+          </a>
         <% }); %>
       </div>
 
-      <button type="submit" style="background: #d9534f; color: white; border: none; padding: 8px 16px; cursor: pointer; align-self: flex-start;">
+      <button type="submit" style="background: #d9534f; color: white; border: none; padding: 8px 16px; cursor: pointer; align-self: flex-start; border-radius: 4px;">
         Remove selected links
       </button>
     </form>
@@ -112,44 +125,70 @@
   <p style="margin-top: 1.5rem; color: #777;">Нет похожих товаров.</p>
 <% } %>
 
+
 <!-- БЛОК: ДОБАВЛЕНИЕ НОВЫХ ПОХОЖИХ ТОВАРОВ ИЗ ОБЩЕГО СПИСКА (БЕЗ УЧЕТА САМОГО ТОВАРА И ПОХОЖИХ) -->
 <% if (typeof candidates !== 'undefined' && candidates.length > 0) { %>
   <section style="margin-top: 3rem; padding: 1rem; border-top: 2px solid #333; border-color:#00b1ffff;">
     <h2>Products list</h2>
     
-    <!-- Форма отправляет POST на эндпоинт добавления -->
-    <form
-      action="/admin/<%= item.id %>/similar/add"
-      method="POST"
-      onsubmit="return confirm('Вы уверены, что хотите добавить выбранные товары в похожие?');"
-      style="display: flex; flex-direction: column; gap: 1rem;"
-    >
+<form
+  id="form-add-similar"                                                      
+  action="/admin/<%= item.id %>/similar/add"
+  method="POST"                                                                
+  style="display: flex; flex-direction: column; gap: 1rem;"
+>
       <div class="candidates-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; max-height: 400px; overflow-y: auto; border: 1px solid #eee; padding: 1rem;">
         
         <% candidates.forEach(function(prod) { %>
-          <div class="candidate-item" style="border: 1px solid #ddd; padding: 0.8rem; border-radius: 4px; display: flex; flex-direction: column;">
-            <strong><%= prod.title %></strong>
-            <span style="font-size: 0.9em; color: #777;">$<%= prod.price %></span>
-            
-            <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 8px;">
-              <label for="cand-<%= prod.id %>" style="cursor: pointer; margin: 0; font-size: 0.9em;">Select</label>
-              <input
-                type="checkbox"
-                id="cand-<%= prod.id %>"
-                value="<%= prod.id %>"
-                name="ids[]"
-                style="cursor: pointer;"
-              />
+          <a href="/admin/<%= prod.id %>" class="candidate-link-wrapper" style="text-decoration: none; color: inherit;">
+            <div class="candidate-item" style="border: 1px solid #ddd; padding: 0.8rem; border-radius: 4px; display: flex; flex-direction: column; cursor: pointer; background: #fff;">
+              <strong><%= prod.title %></strong>
+              <span style="font-size: 0.9em; color: #777;">$<%= prod.price %></span>
+              
+              <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 8px;">
+                <label for="cand-<%= prod.id %>" style="cursor: pointer; margin: 0; font-size: 0.9em; user-select: none;">Select</label>
+                <input
+                  type="checkbox"
+                  id="cand-<%= prod.id %>"
+                  value="<%= prod.id %>"
+                  name="ids[]"
+                  style="cursor: pointer;"
+                  onclick="event.stopPropagation();"
+                />
+              </div>
             </div>
-          </div>
+          </a>
         <% }); %>
       </div>
 
-      <button type="submit" style="background: #27ae60; color: white; border: none; padding: 10px 20px; cursor: pointer; align-self: flex-start;">
+      <button type="submit" style="background: #27ae60; color: white; border: none; padding: 10px 20px; cursor: pointer; align-self: flex-start; border-radius: 4px;">
         Add Selected to Similar
       </button>
     </form>
   </section>
 <% } else if (typeof candidates !== 'undefined') { %>
-  <p style="margin-top: 1.5rem; color: #777;">Нет товаров для добавления (все остальные уже являются похожими или это единственный товар).</p>
+  <p style="margin-top: 1.5rem; color: #777;">Нет товаров для добавления.</p>
 <% } %>
+
+<script>
+  // Обработчик для удаления похожих товаров
+  const formRemove = document.getElementById('form-remove-similar');
+  if (formRemove) {
+    formRemove.addEventListener('submit', function(e) {
+      if (!confirm('Вы уверены, что хотите удалить выбранные связи?')) {
+        e.preventDefault(); // Останавливаем отправку формы
+      }
+    });
+  }
+
+  // Обработчик для добавления похожих товаров
+  const formAdd = document.getElementById('form-add-similar');
+  if (formAdd) {
+    formAdd.addEventListener('submit', function(e) {
+      if (!confirm('Вы уверены, что хотите добавить выбранные товары в похожие?')) {
+        e.preventDefault(); // Останавливаем отправку формы
+      }
+    });
+  }
+</script>
+
