@@ -13,6 +13,9 @@ import { throwServerError } from "./helper";
 import {
   getSimilarProductsDirect,
   deleteSimilarProductLinksDirect,
+  getAvailableCandidates,
+  getAllProducts,
+  addSimilarProductLinksDirect,
 } from "../models/similar.model";
 
 export const productsRouter = Router();
@@ -51,17 +54,29 @@ productsRouter.get(
   "/:id",
   async (req: Request<{ id: string }>, res: Response) => {
     try {
-      const product = await getProduct(req.params.id);
-      if (!product) {
-        return res.render("product/empty-product", { id: req.params.id });
+      const productId = req.params.id;
+
+      // 1. Получаем текущий товар
+      const item = await getProduct(productId);
+      if (!item) {
+        return res.render("product/empty-product", { id: productId });
       }
 
-      // Получаем похожие товары через новую модель
-      const similarProducts = await getSimilarProductsDirect(req.params.id);
+      // 2. Получаем уже существующие похожие товары
+      const similarProducts = await getSimilarProductsDirect(productId);
+
+      // 3. Получаем ВСЕ товары из базы на перспективу
+      // Тебе нужно реализовать эту функцию в модели (например, SELECT * FROM products)
+      const allProducts = await getAllProducts();
+
+      // 4. Кандидаты для добавления (для чекбоксов)
+      // Эта функция сама сделает умный SQL-запрос и вернет готовый список
+      const candidates = await getAvailableCandidates(productId);
 
       res.render("product/product", {
-        item: product,
+        item,
         similarProducts,
+        candidates,
       });
     } catch (e) {
       throwServerError(res, e);
@@ -95,6 +110,36 @@ productsRouter.post(
     }
   },
 );
+
+//Роут для добавления связей
+productsRouter.post(
+  "/:id/similar/add",
+  async (
+    req: Request<{ id: string }, {}, { ids: string[] }>,
+    res: Response,
+  ) => {
+    try {
+      const mainProductId = req.params.id;
+      const idsToAdd = req.body.ids || [];
+
+      if (idsToAdd.length === 0) {
+        // Если ничего не выбрано, просто редиректим обратно
+        return res.redirect(`/admin/${mainProductId}`);
+      }
+
+      // Вызываем модель для вставки связей
+      // Предполагается, что ты напишешь функцию addSimilarProductLinksDirect,
+      // которая делает INSERT INTO product_similarities (main_product_id, similar_product_id) VALUES ...
+      await addSimilarProductLinksDirect(mainProductId, idsToAdd);
+
+      // Успех -> редирект на ту же страницу товара
+      res.redirect(`/admin/${mainProductId}`);
+    } catch (e) {
+      throwServerError(res, e);
+    }
+  },
+);
+//-----------------------------------------------------------------------
 
 productsRouter.get(
   "/remove-product/:id",
