@@ -13,14 +13,14 @@ export let connection: Connection;
 async function launchApplication() {
   server = initServer();
 
-  server.use((req, res, next) => {
-    console.log("���E CHECK:", req.method, req.originalUrl);
-    next();
-  });
-
   // Логирование делаем ЗДЕСЬ, когда dotenv уже точно отработал
   console.log("✅ DEBUG: DB_USER =", process.env.DB_USER);
   console.log("✅ DEBUG: DB_NAME =", process.env.DB_NAME);
+  // добавьте рядом с другими DEBUG-логами в launchApplication() или initRouter()
+  console.log(
+    "✅ DEBUG: ADMIN_PATH =",
+    process.env.ADMIN_PATH ?? "(undefined; fallback 'admin')",
+  );
 
   connection = await initDataBase();
 

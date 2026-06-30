@@ -24,6 +24,8 @@ export default function ShopAdmin(): Express {
   app.set("layout", "layout");
   app.use(express.static(__dirname + "/public"));
 
+  app.use(layouts);
+
   app.use(validateSession);
 
   app.use("/admin", adminPagesRouter); // /admin/new-product
