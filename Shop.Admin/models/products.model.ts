@@ -23,6 +23,68 @@ export async function searchProducts(
   return data || [];
 }
 
+export interface IProductCreatePayload {
+  title: string;
+  description?: string;
+  price: number | string;
+  images?: string | string[] | undefined; // допускаем строку или массив
+}
+
+export async function createProduct(
+  payload: IProductCreatePayload,
+): Promise<IProduct> {
+  if (!payload.title || typeof payload.title !== "string") {
+    throw new Error("Title is required and must be a string.");
+  }
+  if (payload.price === undefined) {
+    throw new Error("Price is required.");
+  }
+
+  const priceValue =
+    typeof payload.price === "string"
+      ? parseFloat(payload.price)
+      : payload.price;
+  if (!isFinite(priceValue)) {
+    throw new Error("Invalid price value.");
+  }
+
+  // Нормализуем images в массив
+  const imagesPayload: { url: string; main: boolean }[] = [];
+  if (payload.images) {
+    const urls: string[] =
+      typeof payload.images === "string"
+        ? splitNewImages(payload.images)
+        : payload.images; // если уже массив
+
+    urls.forEach((url, index) => {
+      imagesPayload.push({
+        url,
+        main: index === 0,
+      });
+    });
+  }
+
+  const requestBody = {
+    title: payload.title.trim(),
+    description: payload.description?.trim(),
+    price: priceValue,
+    images: imagesPayload,
+  };
+
+  try {
+    const response = await axios.post<IProduct>(
+      `${host}/products`,
+      requestBody,
+    );
+    return response.data;
+  } catch (err: any) {
+    if (err.isAxiosError) {
+      throw err.response?.data || err;
+    }
+    throw err;
+  }
+}
+
 //модель данных товара по id
 export async function getProduct(id: string): Promise<IProduct | null> {
   try {

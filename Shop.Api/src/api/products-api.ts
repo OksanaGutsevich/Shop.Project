@@ -329,25 +329,55 @@ productsRouter.post(
         price || null,
       ]);
 
+      let imagesData: IImage[] = [];
+
       // 2. Если есть изображения — добавляем их массово
       if (images.length > 0) {
-        const imagesData = images.map((url, index) => [
-          randomUUID(),
-          productId,
-          index === 0 ? 1 : 0,
+        const imagesRows = images.map((url, index) => ({
+          image_id: randomUUID(),
+          product_id: productId,
+          main: index === 0 ? 1 : 0,
           url,
+        }));
+
+        imagesData = imagesRows.map((img) =>
+          mapImageEntity(img as unknown as IImageEntity),
+        );
+
+        const valuesBatch = imagesRows.map((img) => [
+          img.image_id,
+          img.product_id,
+          img.main,
+          img.url,
         ]);
 
-        await connection.query(INSERT_INTO_IMAGES, [imagesData]);
+        await connection.query(INSERT_INTO_IMAGES, [valuesBatch]);
       }
 
-      res.status(201).json({
-        message: "Product created successfully",
+      // 3. Формируем IProduct
+      const createdProduct: IProduct = {
         id: productId,
-        imagesCount: images.length,
-      });
+        title: title || "",
+        description: description || "",
+        price: typeof price === "number" ? price : parseFloat(price || "0"),
+        comments: [],
+        images: imagesData,
+        thumbnail: imagesData.length > 0 ? imagesData[0] : null,
+      };
+
+      // ✅ ЛОГ В ТЕРМИНАЛ: успешное создание
+      console.log(
+        `✅ Product created successfully: id=${productId}, title="${title}"`,
+      );
+
+      res.status(201).json(createdProduct);
     } catch (e) {
-      throwServerError(res, e);
+      // ❌ ЛОГ В ТЕРМИНАЛ: ошибка создания
+      console.error(
+        `❌ Failed to create product:`,
+        e instanceof Error ? e.message : e,
+      );
+      throwServerError(res, e as Error);
     }
   },
 );

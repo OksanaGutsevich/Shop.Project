@@ -4,6 +4,7 @@ import layouts from "express-ejs-layouts";
 import bodyParser from "body-parser";
 import { authRouter, validateSession } from "./controllers/auth.controller";
 import session from "express-session";
+import adminPagesRouter from "./controllers/newproduct.controller";
 
 export default function ShopAdmin(): Express {
   const app = express();
@@ -25,9 +26,11 @@ export default function ShopAdmin(): Express {
 
   app.use(validateSession);
 
-  app.use("/", productsRouter);
+  app.use(adminPagesRouter); // /admin/new-product
 
-  app.use("/auth", authRouter);
+  app.use("/", productsRouter); // все остальные пути
+
+  app.use("/auth", authRouter); // /auth
 
   return app;
 }
