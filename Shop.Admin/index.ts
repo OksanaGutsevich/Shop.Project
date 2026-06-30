@@ -21,12 +21,12 @@ export default function ShopAdmin(): Express {
 
   app.set("view engine", "ejs");
   app.set("views", "Shop.Admin/views");
-  app.use(layouts);
+  app.set("layout", "layout");
   app.use(express.static(__dirname + "/public"));
 
   app.use(validateSession);
 
-  app.use(adminPagesRouter); // /admin/new-product
+  app.use("/admin", adminPagesRouter); // /admin/new-product
 
   app.use("/", productsRouter); // все остальные пути
 

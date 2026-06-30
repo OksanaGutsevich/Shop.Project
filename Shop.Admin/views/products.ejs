@@ -1,5 +1,9 @@
 <h1>Products (<%= items.length %>)</h1>
 
+<a href="<%= `/${process.env.ADMIN_PATH}/new-product` %>" class="btn-create-product">
+  Создать новый товар
+</a>
+
     <form action="search" method="GET" class="products-search-form">
         <div class="products-search">
             <div>

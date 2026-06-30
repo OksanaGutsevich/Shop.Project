@@ -26,7 +26,10 @@ adminPagesRouter.get(
   "/new-product",
   ensureAdmin,
   (req: Request, res: Response) => {
-    res.render("product/new-product", { currentPage: "new-product" });
+    res.render("product/new-product", {
+      currentPage: "new-product",
+      layout: "layout", // ← Явно указываем layout
+    });
   },
 );
 
